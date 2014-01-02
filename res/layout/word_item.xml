@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/word"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="8dp"
+        android:singleLine="true"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="10pt"
+        android:textStyle="bold" />
+
+<!--     <com.example.test.MyView
+        android:id="@+id/view"
+        android:layout_width="fill_parent"
+        android:layout_height="768dp"
+        android:background="#555555" /> -->
+    <android.ozpaintview.view.OzPaintView
+        android:id="@+id/view"
+        android:layout_width="fill_parent"
+        android:layout_height="768dp"
+        android:background="#555555" />
+
+</LinearLayout>
