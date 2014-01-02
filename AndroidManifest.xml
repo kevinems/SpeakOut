@@ -29,6 +29,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Voice Recognition Samples -->
+        <activity
+            android:name="com.kevinstudio.speakout.VoiceRecognition"
+            android:label="@string/voice_recognition" >
+        </activity>
     </application>
 
 </manifest>

@@ -1,6 +1,8 @@
 
 package com.kevinstudio.speakout;
 
+import com.kevinstudio.speakout.R.string;
+
 import android.R.integer;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -9,6 +11,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.DataSetObservable;
@@ -22,11 +25,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -56,18 +64,22 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
      */
     ViewPager mViewPager;
 
+    // library list view frament
     private static ContentResolver mCR;
 
     private static Cursor mCursor;
 
     private static SimpleCursorAdapter mListAdapter;
-
-    private static DataSetObserver mDataSetObserver;
+    
+    private static TextView mTextViewSumary;
     
     private static String[] columnsProject = new String[] {
             SpeakOut.Notes._ID, SpeakOut.Notes.TITLE, SpeakOut.Notes.NOTE
     };
     private static Uri myUri = SpeakOut.Notes.CONTENT_URI;
+    
+    private static final int CONTEXT_MENU_LIBRARY_LIST_DELETE_ID = 100000;
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,7 +243,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             rootView = inflater.inflate(R.layout.fragment_main_view, container, false);
             TextView textViewTips = (TextView) rootView.findViewById(R.id.main_view_tips);
 
-            textViewTips.setText(R.string.mainv_view_tips);
+            textViewTips.setText(getString(R.string.mainv_view_tips));
 
             // edittext content
             final EditText editTextContent = (EditText) rootView
@@ -271,12 +283,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                     ContentValues values = new ContentValues();
                     values.put(SpeakOut.Notes.TITLE, "title1");
                     values.put(SpeakOut.Notes.NOTE, editTextContent.getText().toString());
-                    Uri tempUri = ContentUris.withAppendedId(SpeakOut.Notes.CONTENT_URI, 1);
-                    mCR.update(tempUri, values, null, null);
+//                    Uri tempUri = ContentUris.withAppendedId(SpeakOut.Notes.CONTENT_URI, 1);
+//                    mCR.update(tempUri, values, null, null);
+                    mCR.insert(myUri, values);
 
                     ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
                 }
 
+            });
+            
+            Button buttonPractise = (Button) rootView.findViewById(R.id.main_view_quick_practise_button);
+            buttonPractise.setOnClickListener(new OnClickListener() {
+                
+                @Override
+                public void onClick(View v) {
+                    // TODO Auto-generated method stub
+                    Intent intent = new Intent(getActivity().getApplicationContext(), VoiceRecognition.class);
+                    startActivity(intent);
+                }
             });
 
             return rootView;
@@ -289,6 +313,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 Bundle savedInstanceState) {
             View rootView = null;
             rootView = inflater.inflate(R.layout.fragment_library_list, container, false);
+            
+            // listview
             mListView = (LibraryListView) rootView.findViewById(R.id.library_list_label);
             mListView.setTag(LIBRARY_LIST_VIEW_TAG);
             
@@ -308,23 +334,19 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                             R.id.library_list_item
                         }, 0);
                 mListView.setAdapter(mListAdapter);
-
             } else {
                 Log.i(TAG, "cur == null");
             }
+            
+            // textview sumary
+            mTextViewSumary = (TextView) rootView.findViewById(R.id.library_sumary);
+            mTextViewSumary.setText(getString(R.string.library_list_view_sumary) + " "
+                    + String.valueOf(mCursor.getCount()));
+            
+            // register ContextMenu for listview
+            registerForContextMenu(mListView);
+            
             return rootView;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        // TODO Auto-generated method stub
-        super.onDestroy();
-        if (mListAdapter != null) {
-            mListAdapter.unregisterDataSetObserver(mDataSetObserver);
-        }
-        if (mCursor != null) {
-            mCursor.close();
         }
     }
 
@@ -337,12 +359,60 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
         // TODO Auto-generated method stub
-        mListAdapter.swapCursor(arg1);
+        mCursor = arg1;
+        mListAdapter.swapCursor(mCursor);
+        updateAllViewsRelatedToCursor();
+    }
+
+    private void updateAllViewsRelatedToCursor() {
+        // TODO Auto-generated method stub
+        mTextViewSumary.setText(getString(R.string.library_list_view_sumary) + " "
+                + String.valueOf(mCursor.getCount()));
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> arg0) {
         // TODO Auto-generated method stub
         mListAdapter.swapCursor(null);
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        // TODO Auto-generated method stub
+        menu.add(menu.NONE, CONTEXT_MENU_LIBRARY_LIST_DELETE_ID, Menu.NONE,
+                getString(R.string.library_list_view_context_menu_delete));
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        switch (item.getItemId()) {
+            case CONTEXT_MENU_LIBRARY_LIST_DELETE_ID:
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
+                        .getMenuInfo();
+
+                String[] selectionArgs = new String[] {
+                    String.valueOf(info.id)
+                };
+                String selection = "" + SpeakOut.Notes._ID + "=?";
+                mCR.delete(myUri, selection, selectionArgs);
+
+                return true;
+                // break;
+
+            default:
+                break;
+        }
+        return super.onContextItemSelected(item);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        if (mCursor != null) {
+            mCursor.close();
+        }
     }
 }

@@ -58,6 +58,11 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_view_quick_insert_button_commit" />
         
+        <Button
+            android:id="@+id/main_view_quick_practise_button"
+            android:layout_width="@dimen/main_view_common_button_width"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_view_quick_practise_button" />
         </LinearLayout>
     </RelativeLayout>
 

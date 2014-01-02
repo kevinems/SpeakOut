@@ -1,7 +1,9 @@
 package com.kevinstudio.speakout;
 
+import com.kevinstudio.speakout.R.string;
 import com.kevinstudio.speakout.SpeakOut.Notes;
 
+import android.R.integer;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -81,7 +83,27 @@ public class SpeakOutProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // TODO Auto-generated method stub
-        return 0;
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int count;
+        switch (sUriMatcher.match(uri)) {
+            case NOTES:
+                count = db.delete(NOTES_TABLE_NAME, selection, selectionArgs);
+                break;
+                
+            case NOTE_ID:
+                String noteId = uri.getPathSegments().get(1);
+                count = db.delete(NOTES_TABLE_NAME,
+                        Notes._ID + "=" + noteId
+                                + (!TextUtils.isEmpty(selection) ? "AND (" + selection + ')' : ""),
+                        selectionArgs);
+                break;                    
+
+            default:
+                throw new IllegalArgumentException("Unknow URI" + uri);
+//                break;
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override

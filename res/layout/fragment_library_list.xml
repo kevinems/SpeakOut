@@ -7,9 +7,16 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity$DummySectionFragment" >
-
+	<TextView 
+	    android:id="@+id/library_sumary"
+	    android:text="@string/library_list_view_sumary"
+	    android:background="@android:color/darker_gray"
+	    android:layout_margin="10.0dip"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"/>
     <com.kevinstudio.speakout.LibraryListView
         android:id="@+id/library_list_label"
+        android:layout_below="@id/library_sumary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
     </com.kevinstudio.speakout.LibraryListView>

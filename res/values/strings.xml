@@ -6,13 +6,31 @@
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
-    
-    <!-- main view -->
+
+    <!-- main view fragment -->
     <string name="mainv_view_tips">Good Good Study, Day Day Up!</string>
     <string name="main_view_quick_insert">insert a new item quickly</string>
     <string name="main_view_quick_insert_edittext_content_tips">input the content here</string>
     <string name="main_view_quick_insert_edittext_translate_tips">input the translate here, or leave it blank</string>
     <string name="main_view_quick_insert_button_clear">clear</string>
     <string name="main_view_quick_insert_button_commit">commit</string>
-    
+    <string name="main_view_quick_practise_button">Speak Out right now!!!</string>
+
+    <!-- library list view fragment -->
+    <string name="library_list_view_sumary">Total items: </string>
+    <string name="library_list_view_context_menu_delete">delete</string>
+
+    <!-- voice recongnition -->
+    <string name="voice_recognition">App/Voice Recognition</string>
+    <string name="supported_languages">Supported languages</string>
+    <string name="language_preference">Voice Search in Settings</string>
+
+    <!-- ============================== -->
+    <!-- app/voice recognition examples strings -->
+    <!-- ============================== -->
+
+    <string name="voice_recognition_prompt">This activity demonstrates the voice recognition APIs.</string>
+    <string name="speak_button">Speak!</string>
+    <string name="voice_recognition_results">Results:</string>
+
 </resources>
