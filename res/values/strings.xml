@@ -24,6 +24,13 @@
     <string name="voice_recognition">App/Voice Recognition</string>
     <string name="supported_languages">Supported languages</string>
     <string name="language_preference">Voice Search in Settings</string>
+    <string name="voice_recognition_answer_dialog_correct">Well Done!</string>
+    <string name="voice_recognition_answer_dialog_correct_message">You are genuis!</string>
+    <string name="voice_recognition_answer_dialog_wrong">Oh</string>
+    <string name="voice_recognition_answer_dialog_wrong_message">Congratulations, wrong answer</string>
+    <string name="voice_recognition_answer_dialog_rest">Have a rest!</string>
+    <string name="voice_recognition_answer_dialog_once_again">one again?</string>
+    <string name="voice_recognition_answer_dialog_next">next question!</string>
 
     <!-- ============================== -->
     <!-- app/voice recognition examples strings -->

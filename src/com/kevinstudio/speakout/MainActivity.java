@@ -1,24 +1,17 @@
 
 package com.kevinstudio.speakout;
 
-import com.kevinstudio.speakout.R.string;
-
-import android.R.integer;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.DataSetObservable;
-import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -26,20 +19,17 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -67,7 +57,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     // library list view frament
     private static ContentResolver mCR;
 
-    private static Cursor mCursor;
+    public static Cursor mCursor;
 
     private static SimpleCursorAdapter mListAdapter;
     
@@ -358,16 +348,19 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     @Override
     public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-        // TODO Auto-generated method stub
-        mCursor = arg1;
-        mListAdapter.swapCursor(mCursor);
-        updateAllViewsRelatedToCursor();
+        if (arg1 != null && mListAdapter != null) {
+            mCursor = arg1;
+            mListAdapter.swapCursor(mCursor);
+            updateAllViewsRelatedToCursor();    
+        }
     }
 
     private void updateAllViewsRelatedToCursor() {
-        // TODO Auto-generated method stub
-        mTextViewSumary.setText(getString(R.string.library_list_view_sumary) + " "
-                + String.valueOf(mCursor.getCount()));
+        mTextViewSumary = (TextView) findViewById(R.id.library_sumary);
+        if (mTextViewSumary != null && mCursor != null) {
+            mTextViewSumary.setText(getString(R.string.library_list_view_sumary) + " "
+                    + String.valueOf(mCursor.getCount()));
+        }
     }
 
     @Override

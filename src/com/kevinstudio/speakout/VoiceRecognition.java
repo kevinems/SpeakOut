@@ -16,9 +16,16 @@
 
 package com.kevinstudio.speakout;
 
+import com.kevinstudio.speakout.R.drawable;
+import com.kevinstudio.speakout.data.Question;
+
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -26,10 +33,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -53,6 +63,16 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     private Handler mHandler;
 
     private Spinner mSupportedLanguageView;
+    
+    private int mCursorId = 0;
+    
+    private Question mCurrentQuestion;
+    
+    static final String DEFAULT_LANGUAGE = "en-US";
+    
+    private String mCurrentLanguge = DEFAULT_LANGUAGE;
+    
+    private boolean mLastQuestionAnswer = false;
 
     /**
      * Called with the activity is first created.
@@ -94,6 +114,7 @@ public class VoiceRecognition extends Activity implements OnClickListener {
      */
     public void onClick(View v) {
         if (v.getId() == R.id.btn_speak) {
+            mCurrentQuestion = generateSequnceQuestion(mLastQuestionAnswer);
             startVoiceRecognitionActivity();
         }
     }
@@ -108,7 +129,8 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass().getPackage().getName());
 
         // Display an hint to the user about what he should say.
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition demo");
+//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition demo");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, mCurrentQuestion.getContent());
 
         // Given an hint to the recognizer about what the user is going to say
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -138,12 +160,82 @@ public class VoiceRecognition extends Activity implements OnClickListener {
             // Fill the list view with the strings the recognizer thought it could have heard
             ArrayList<String> matches = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
-            mList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                    matches));
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1,
+                    matches);
+            mList.setAdapter(arrayAdapter);
+            mList.setTextFilterEnabled(true);
+            mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE); 
+            
+            int answerId = judgeAnswer(matches);
+            if (answerId >= 0) {
+//                Toast.makeText(this, "good", Toast.LENGTH_SHORT).show();
+                mList.setItemChecked(answerId, true);
+            } else {
+//                Toast.makeText(this, "not good", Toast.LENGTH_SHORT).show();
+            }
+            
+            showAnswerDialog();
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+        
+        
     }
+
+    /**
+     * 
+     */
+    private void showAnswerDialog() {
+
+        AlertDialog.Builder dialog = new Builder(this);
+//        LayoutInflater inflater = getLayoutInflater();
+//        View layout = inflater.inflate(R.layout.answer_dialog, (ViewGroup) findViewById(R.id.answer_dialog));
+//        dialog.setIconAttribute(android.R.attr.alertDialogIcon);
+        LinearLayout layout = new LinearLayout(this);
+        ImageView imageView = new ImageView(this);
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
+        layout.addView(imageView, params);
+        if (mLastQuestionAnswer) {
+            dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_correct));
+            dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_correct_message));
+            imageView.setImageResource(drawable.wrong);
+        } else {
+            dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_wrong));
+            dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_wrong_message));
+            imageView.setImageResource(drawable.correct);
+        }
+        dialog.setView(layout);
+        dialog.setPositiveButton(getString(R.string.voice_recognition_answer_dialog_next),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+                        mCurrentQuestion = generateSequnceQuestion(true);
+                        startVoiceRecognitionActivity();
+                    }
+                });
+        dialog.setNegativeButton(getString(R.string.voice_recognition_answer_dialog_rest),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+                    }
+                });
+        dialog.setNeutralButton(getString(R.string.voice_recognition_answer_dialog_once_again),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+                        mCurrentQuestion = generateSequnceQuestion(false);
+                        startVoiceRecognitionActivity();
+                    }
+                });
+        dialog.create();
+        dialog.show();
+    }
+    
 
     private void refreshVoiceSettings() {
         Log.i(TAG, "Sending broadcast");
@@ -159,11 +251,64 @@ public class VoiceRecognition extends Activity implements OnClickListener {
                 android.R.layout.simple_spinner_item, languages.toArray(
                         new String[languages.size()]));
         mSupportedLanguageView.setAdapter(adapter);
+        mSupportedLanguageView.setSelection(14); // 14 means en-US
     }
 
     private void updateLanguagePreference(String language) {
         TextView textView = (TextView) findViewById(R.id.language_preference);
         textView.setText(language);
+    }
+    
+    /**
+     * 
+     * @param next true to get next question, or false to return current question;
+     * @return
+     */
+    private Question generateSequnceQuestion(boolean next) {
+        Question question;
+
+        if (next) {
+            if (MainActivity.mCursor.moveToNext()) {
+                mCursorId++;
+            } else {
+                MainActivity.mCursor.moveToFirst();
+                mCursorId = 0;
+            }
+            question = generateQuestionByCursor();
+        } else {
+            if (mCursorId == 0) {
+                MainActivity.mCursor.moveToFirst();
+                question = generateQuestionByCursor();
+            } else {
+                question = mCurrentQuestion;
+            }
+        }
+        return question;
+    }
+    
+    private Question generateQuestionByCursor() {
+        Question question;
+        int nameColumnIndex = MainActivity.mCursor.getColumnIndex(SpeakOut.Notes.NOTE);
+        String content = MainActivity.mCursor.getString(nameColumnIndex);
+        question = new Question(content);
+        
+        return question;
+    }
+    
+    /**
+     * 
+     * @param matches
+     * @return -1 means error, >= 0 means equal No.
+     */
+    private int judgeAnswer(ArrayList<String> matches) {
+        for (int i = 0; i< matches.size(); i++) {
+            if (matches.get(i).equalsIgnoreCase(mCurrentQuestion.getContent())) {
+                mLastQuestionAnswer = true;
+                return i;
+            }
+        }
+        mLastQuestionAnswer = false;
+        return -1;
     }
 
     /**
