@@ -1,6 +1,8 @@
 
 package com.kevinstudio.speakout.data;
 
+import com.kevinstudio.speakout.R.string;
+
 import java.util.Date;
 
 public class Question {
@@ -172,6 +174,21 @@ public class Question {
      */
     public void setFavor(boolean mFavor) {
         this.mFavor = mFavor;
+    }
+    
+    public static boolean isContentValid(String aContent) {
+        boolean result = false;
+        
+        if (!aContent.isEmpty()) {
+            result = true;
+        }
+        return result;
+    }
+    
+    public static String getValidContent(String aString) {
+        String string  = aString;
+        string.replaceAll("\\p{P}", "").trim();
+        return string;
     }
 
     // field

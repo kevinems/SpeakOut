@@ -10,8 +10,9 @@
 
     <RelativeLayout
         android:id="@+id/main_view_tips_layout"
-        android:layout_width="fill_parent" android:layout_height="130.0dip"
-                android:layout_margin="10.0dip">
+        android:layout_width="fill_parent"
+        android:layout_height="50.0dip"
+        android:layout_margin="10.0dip" >
 
         <TextView
             android:id="@+id/main_view_tips"
@@ -20,49 +21,60 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@id/main_view_tips_layout"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_margin="10.0dip">
-		<LinearLayout
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:orientation="vertical"
-		     >
+        android:layout_margin="10.0dip" >
+
         <TextView
             android:id="@+id/main_view_quick_insert_tips"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_view_quick_insert" />
+
         <EditText
             android:id="@+id/main_view_quick_insert_edittext_content"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:hint="@string/main_view_quick_insert_edittext_content_tips" />
-        <EditText
-            android:id="@+id/main_view_quick_insert_edittext_translate"
-            android:layout_width="fill_parent"
+            android:layout_below="@id/main_view_quick_insert_tips"
+            android:hint="@string/main_view_quick_insert_edittext_content_tips"
+            android:inputType="textMultiLine"
+            android:maxLines="3" />
+
+        <LinearLayout
+            android:id="@+id/clear_insert_button_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:hint="@string/main_view_quick_insert_edittext_translate_tips" />
-        
-        <Button
-            android:id="@+id/main_view_quick_insert_button_clear"
-            android:layout_width="@dimen/main_view_common_button_width"
-            android:layout_height="wrap_content"
-            android:hint="@string/main_view_quick_insert_button_clear" />
-        
-        <Button
-            android:id="@+id/main_view_quick_insert_button_commit"
-            android:layout_width="@dimen/main_view_common_button_width"
-            android:layout_height="wrap_content"
-            android:hint="@string/main_view_quick_insert_button_commit" />
-        
-        <Button
-            android:id="@+id/main_view_quick_practise_button"
-            android:layout_width="@dimen/main_view_common_button_width"
-            android:layout_height="wrap_content"
-            android:hint="@string/main_view_quick_practise_button" />
+            android:layout_below="@id/main_view_quick_insert_edittext_content"
+            android:gravity="center" >
+
+            <Button
+                android:id="@+id/main_view_quick_insert_button_clear"
+                style="?android:attr/button"
+                android:layout_width="@dimen/main_view_common_button_width"
+                android:layout_height="wrap_content"
+                android:hint="@string/main_view_quick_insert_button_clear" />
+
+            <Button
+                android:id="@+id/main_view_quick_insert_button_insert"
+                style="?android:attr/button"
+                android:layout_width="@dimen/main_view_common_button_width"
+                android:layout_height="wrap_content"
+                android:hint="@string/main_view_quick_insert_button_insert" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/speak_out_button_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/clear_insert_button_layout"
+            android:gravity="center" >
+
+            <Button
+                android:id="@+id/main_view_quick_practise_button"
+                android:layout_width="@dimen/main_view_common_button_width"
+                android:layout_height="wrap_content"
+                android:hint="@string/main_view_quick_practise_button" />
         </LinearLayout>
     </RelativeLayout>
 

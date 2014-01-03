@@ -3,18 +3,19 @@
 
     <string name="app_name">SpeakOut</string>
     <string name="action_settings">Settings</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
+    <string name="title_section1">Main</string>
+    <string name="title_section2">Library</string>
     <string name="title_section3">Section 3</string>
 
     <!-- main view fragment -->
     <string name="mainv_view_tips">Good Good Study, Day Day Up!</string>
     <string name="main_view_quick_insert">insert a new item quickly</string>
-    <string name="main_view_quick_insert_edittext_content_tips">input the content here</string>
-    <string name="main_view_quick_insert_edittext_translate_tips">input the translate here, or leave it blank</string>
+    <string name="main_view_quick_insert_edittext_content_tips">content</string>
     <string name="main_view_quick_insert_button_clear">clear</string>
-    <string name="main_view_quick_insert_button_commit">commit</string>
-    <string name="main_view_quick_practise_button">Speak Out right now!!!</string>
+    <string name="main_view_quick_insert_button_insert">insert</string>
+    <string name="main_view_quick_practise_button">Speak Out \n Right Now!!!</string>
+    <string name="main_view_quick_insert_content_invalid">content is invalid</string>
+    <string name="main_view_quick_insert_content_done">insert content done</string>
 
     <!-- library list view fragment -->
     <string name="library_list_view_sumary">Total items: </string>
@@ -29,7 +30,7 @@
     <string name="voice_recognition_answer_dialog_wrong">Oh</string>
     <string name="voice_recognition_answer_dialog_wrong_message">Congratulations, wrong answer</string>
     <string name="voice_recognition_answer_dialog_rest">Have a rest!</string>
-    <string name="voice_recognition_answer_dialog_once_again">one again?</string>
+    <string name="voice_recognition_answer_dialog_once_again">once again?</string>
     <string name="voice_recognition_answer_dialog_next">next question!</string>
 
     <!-- ============================== -->
@@ -37,7 +38,8 @@
     <!-- ============================== -->
 
     <string name="voice_recognition_prompt">This activity demonstrates the voice recognition APIs.</string>
-    <string name="speak_button">Speak!</string>
+    <string name="speak_button_sequence">Sequence Speak!</string>
+    <string name="speak_button_random">Random Speak!</string>
     <string name="voice_recognition_results">Results:</string>
 
 </resources>

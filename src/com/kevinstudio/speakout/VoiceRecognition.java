@@ -17,8 +17,10 @@
 package com.kevinstudio.speakout;
 
 import com.kevinstudio.speakout.R.drawable;
+import com.kevinstudio.speakout.R.string;
 import com.kevinstudio.speakout.data.Question;
 
+import android.R.integer;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -48,6 +50,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Sample code that invokes the speech recognition intent API.
@@ -74,6 +77,12 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     
     private boolean mLastQuestionAnswer = false;
 
+    private static final int QUESTION_GENERATE_RULE_SEQUENCE = 0;
+    private static final int QUESTION_GENERATE_RULE_RANDOM = 1;
+    private static final int QUESTION_GENERATE_RULE_WRONG = 2;
+
+    private int mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
+    
     /**
      * Called with the activity is first created.
      */
@@ -86,7 +95,8 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         setContentView(R.layout.voice_recognition);
 
         // Get display items for later interaction
-        Button speakButton = (Button) findViewById(R.id.btn_speak);
+        Button speakButtonSequence = (Button) findViewById(R.id.btn_speak_sequence);
+        Button speakButtonRandom = (Button) findViewById(R.id.btn_speak_random);
 
         mList = (ListView) findViewById(R.id.list);
 
@@ -97,10 +107,12 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         List<ResolveInfo> activities = pm.queryIntentActivities(
                 new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         if (activities.size() != 0) {
-            speakButton.setOnClickListener(this);
+            speakButtonSequence.setOnClickListener(this);
+            speakButtonRandom.setOnClickListener(this);
         } else {
-            speakButton.setEnabled(false);
-            speakButton.setText("Recognizer not present");
+            speakButtonSequence.setEnabled(false);
+            speakButtonRandom.setEnabled(false);
+            speakButtonSequence.setText("Recognizer not present");
         }
 
         // Most of the applications do not have to handle the voice settings. If the application
@@ -113,8 +125,13 @@ public class VoiceRecognition extends Activity implements OnClickListener {
      * Handle the click on the start recognition button.
      */
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_speak) {
-            mCurrentQuestion = generateSequnceQuestion(mLastQuestionAnswer);
+        if (v.getId() == R.id.btn_speak_sequence) {
+            mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
+            mCurrentQuestion = generateQuestion(mLastQuestionAnswer);
+            startVoiceRecognitionActivity();
+        } else if (v.getId() == R.id.btn_speak_random) {
+            mQuestionGenerateRule = QUESTION_GENERATE_RULE_RANDOM;
+            mCurrentQuestion = generateQuestion(true);
             startVoiceRecognitionActivity();
         }
     }
@@ -164,17 +181,17 @@ public class VoiceRecognition extends Activity implements OnClickListener {
                     matches);
             mList.setAdapter(arrayAdapter);
             mList.setTextFilterEnabled(true);
-            mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE); 
+            mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             
             int answerId = judgeAnswer(matches);
             if (answerId >= 0) {
 //                Toast.makeText(this, "good", Toast.LENGTH_SHORT).show();
                 mList.setItemChecked(answerId, true);
+                showAnswerDialog(matches.get(answerId));
             } else {
 //                Toast.makeText(this, "not good", Toast.LENGTH_SHORT).show();
+                showAnswerDialog(matches.get(0));
             }
-            
-            showAnswerDialog();
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -185,7 +202,7 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     /**
      * 
      */
-    private void showAnswerDialog() {
+    private void showAnswerDialog(String answer) {
 
         AlertDialog.Builder dialog = new Builder(this);
 //        LayoutInflater inflater = getLayoutInflater();
@@ -193,8 +210,13 @@ public class VoiceRecognition extends Activity implements OnClickListener {
 //        dialog.setIconAttribute(android.R.attr.alertDialogIcon);
         LinearLayout layout = new LinearLayout(this);
         ImageView imageView = new ImageView(this);
-        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
+        TextView textView = new TextView(this);
+        textView.setText(answer);
+        textView.setGravity(Gravity.CENTER);
+        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER);
         layout.addView(imageView, params);
+        params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
+        layout.addView(textView, params);
         if (mLastQuestionAnswer) {
             dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_correct));
             dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_correct_message));
@@ -210,7 +232,7 @@ public class VoiceRecognition extends Activity implements OnClickListener {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
-                        mCurrentQuestion = generateSequnceQuestion(true);
+                        mCurrentQuestion = generateQuestion(true);
                         startVoiceRecognitionActivity();
                     }
                 });
@@ -228,7 +250,7 @@ public class VoiceRecognition extends Activity implements OnClickListener {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
-                        mCurrentQuestion = generateSequnceQuestion(false);
+                        mCurrentQuestion = generateQuestion(false);
                         startVoiceRecognitionActivity();
                     }
                 });
@@ -259,12 +281,32 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         textView.setText(language);
     }
     
+    private Question generateQuestion(boolean next) {
+        Question question;
+        
+        switch (mQuestionGenerateRule) {
+            case QUESTION_GENERATE_RULE_SEQUENCE:
+                question = generateSequenceQuestion(next);
+                break;
+                
+            case QUESTION_GENERATE_RULE_RANDOM:
+                question = generateRandomQuestion(next);
+                break;
+
+            default:
+                question = generateSequenceQuestion(next);
+                break;
+        }
+        
+        return question;
+    }
+    
     /**
      * 
      * @param next true to get next question, or false to return current question;
      * @return
      */
-    private Question generateSequnceQuestion(boolean next) {
+    private Question generateSequenceQuestion(boolean next) {
         Question question;
 
         if (next) {
@@ -286,6 +328,39 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         return question;
     }
     
+    /**
+     * 
+     * @param next true to get next question, or false to return current question;
+     * @return
+     */
+    private Question generateRandomQuestion(boolean next) {
+        Question question;
+        int count = MainActivity.mCursor.getCount();
+        int random = 0;
+
+        Random randomSeed = new Random();
+        do {
+            random = randomSeed.nextInt(MainActivity.mCursor.getCount());
+        } while ((count > 1) && (random == mCursorId));
+
+        if (next) {
+            MainActivity.mCursor.moveToPosition(random);
+            question = generateQuestionByCursor();
+        } else {
+            if (mCurrentQuestion != null) {
+                question = mCurrentQuestion;
+            } else {
+                MainActivity.mCursor.moveToPosition(random);
+                question = generateQuestionByCursor();
+            }
+
+        }
+
+        mCursorId = random;
+
+        return question;
+    }
+    
     private Question generateQuestionByCursor() {
         Question question;
         int nameColumnIndex = MainActivity.mCursor.getColumnIndex(SpeakOut.Notes.NOTE);
@@ -301,8 +376,10 @@ public class VoiceRecognition extends Activity implements OnClickListener {
      * @return -1 means error, >= 0 means equal No.
      */
     private int judgeAnswer(ArrayList<String> matches) {
+        String content = Question.getValidContent(mCurrentQuestion.getContent());
+        Log.i(TAG, "judgeAnswer content = " + content);
         for (int i = 0; i< matches.size(); i++) {
-            if (matches.get(i).equalsIgnoreCase(mCurrentQuestion.getContent())) {
+            if (matches.get(i).equalsIgnoreCase(content)) {
                 mLastQuestionAnswer = true;
                 return i;
             }

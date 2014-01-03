@@ -1,6 +1,8 @@
 
 package com.kevinstudio.speakout;
 
+import com.kevinstudio.speakout.data.Question;
+
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -32,6 +34,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -239,10 +242,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             final EditText editTextContent = (EditText) rootView
                     .findViewById(R.id.main_view_quick_insert_edittext_content);
 
-            // edittext translate
-            final EditText editTextTranslaText = (EditText) rootView
-                    .findViewById(R.id.main_view_quick_insert_edittext_translate);
-
             // button clear
             Button buttonClear = (Button) rootView
                     .findViewById(R.id.main_view_quick_insert_button_clear);
@@ -254,30 +253,42 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                     if (editTextContent != null) {
                         editTextContent.setText("");
                     }
-                    if (editTextTranslaText != null) {
-                        editTextTranslaText.setText("");
-                    }
                 }
             });
 
             // button commnit
             Button buttonCommit = (Button) rootView
-                    .findViewById(R.id.main_view_quick_insert_button_commit);
+                    .findViewById(R.id.main_view_quick_insert_button_insert);
             buttonCommit.setOnClickListener(new OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
-                    // TODO Auto-generated method stub
-                    // content provider
-                    Log.i(TAG, "insert content provider");
-                    ContentValues values = new ContentValues();
-                    values.put(SpeakOut.Notes.TITLE, "title1");
-                    values.put(SpeakOut.Notes.NOTE, editTextContent.getText().toString());
-//                    Uri tempUri = ContentUris.withAppendedId(SpeakOut.Notes.CONTENT_URI, 1);
-//                    mCR.update(tempUri, values, null, null);
-                    mCR.insert(myUri, values);
+                    String contentToBeInserted = editTextContent.getText().toString();
+                    if (Question.isContentValid(contentToBeInserted)) {
 
-                    ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+                        // content provider
+                        Log.i(TAG, "insert content provider");
+                        ContentValues values = new ContentValues();
+                        values.put(SpeakOut.Notes.TITLE, "title1");
+                        values.put(SpeakOut.Notes.NOTE, contentToBeInserted);
+                        // Uri tempUri =
+                        // ContentUris.withAppendedId(SpeakOut.Notes.CONTENT_URI,
+                        // 1);
+                        // mCR.update(tempUri, values, null, null);
+                        mCR.insert(myUri, values);
+
+                        ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+                        Toast.makeText(getActivity().getApplicationContext(),
+                                R.string.main_view_quick_insert_content_done, Toast.LENGTH_SHORT)
+                                .show();
+                        
+                        // clear edittext content
+                        editTextContent.setText("");
+                    } else {
+                        Toast.makeText(getActivity().getApplicationContext(),
+                                R.string.main_view_quick_insert_content_invalid, Toast.LENGTH_SHORT)
+                                .show();
+                    }
                 }
 
             });
