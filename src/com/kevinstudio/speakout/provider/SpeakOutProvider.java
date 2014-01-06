@@ -1,7 +1,11 @@
-package com.kevinstudio.speakout;
+package com.kevinstudio.speakout.provider;
 
-import com.kevinstudio.speakout.SpeakOut.QuestionItem;
 
+import com.kevinstudio.speakout.data.CommonLevel;
+import com.kevinstudio.speakout.data.Question;
+import com.kevinstudio.speakout.provider.SpeakOut.QuestionItem;
+
+import android.R.bool;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -16,10 +20,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.logging.Level;
 
 public class SpeakOutProvider extends ContentProvider {
     private static final String TAG = "NotePadProvider";
@@ -43,8 +49,20 @@ public class SpeakOutProvider extends ContentProvider {
                                                 + " INTEGER PRIMARY KEY,"
                                                 + QuestionItem.CONTENT
                                                 + " TEXT,"
-                                                + QuestionItem.CREATEDDATE
-                                                + " TEXT" 
+                                                + QuestionItem.COMMON_LEVEL
+                                                + " INTEGER,"
+                                                + QuestionItem.FAVOR
+                                                + " INTEGER,"
+                                                + QuestionItem.CREATED_DATE
+                                                + " INTEGER,"
+                                                + QuestionItem.PRACTISE_COUNT
+                                                + " INTEGER,"
+                                                + QuestionItem.LAST_PRACTISE_DATE
+                                                + " INTEGER,"
+                                                 + QuestionItem.WRONG_COUNT
+                                                + " INTEGER,"
+                                                + QuestionItem.SOUND
+                                                + " TEXT"
                                                 + ");";
 
     static {
@@ -55,7 +73,13 @@ public class SpeakOutProvider extends ContentProvider {
         sQuestionItemsProjectionMap = new HashMap<String, String>();
         sQuestionItemsProjectionMap.put(QuestionItem._ID, QuestionItem._ID);
         sQuestionItemsProjectionMap.put(QuestionItem.CONTENT, QuestionItem.CONTENT);
-        sQuestionItemsProjectionMap.put(QuestionItem.CREATEDDATE, QuestionItem.CREATEDDATE);
+        sQuestionItemsProjectionMap.put(QuestionItem.COMMON_LEVEL, QuestionItem.COMMON_LEVEL);
+        sQuestionItemsProjectionMap.put(QuestionItem.FAVOR, QuestionItem.FAVOR);
+        sQuestionItemsProjectionMap.put(QuestionItem.CREATED_DATE, QuestionItem.CREATED_DATE);
+        sQuestionItemsProjectionMap.put(QuestionItem.PRACTISE_COUNT, QuestionItem.PRACTISE_COUNT);
+        sQuestionItemsProjectionMap.put(QuestionItem.LAST_PRACTISE_DATE, QuestionItem.LAST_PRACTISE_DATE);
+        sQuestionItemsProjectionMap.put(QuestionItem.WRONG_COUNT, QuestionItem.WRONG_COUNT);
+        sQuestionItemsProjectionMap.put(QuestionItem.SOUND, QuestionItem.SOUND);
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -134,13 +158,51 @@ public class SpeakOutProvider extends ContentProvider {
             values = new ContentValues();
         }
         
-        SimpleDateFormat sdf = new SimpleDateFormat("", Locale.SIMPLIFIED_CHINESE);
-        sdf.applyPattern("yyyy年MM月dd日 HH时mm分ss秒");
-        String now = sdf.format(new Date());  
-        if (values.containsKey(SpeakOut.QuestionItem.CREATEDDATE) == false) {
-            values.put(SpeakOut.QuestionItem.CREATEDDATE, now);
-        }      
+        // content
         
+        // common level
+        if (values.containsKey(SpeakOut.QuestionItem.COMMON_LEVEL) == false) {
+            int level = CommonLevel.THREE_STARS;
+            values.put(SpeakOut.QuestionItem.COMMON_LEVEL, level);
+        } 
+        
+        // favor
+        if (values.containsKey(SpeakOut.QuestionItem.FAVOR) == false) {
+            int favor = 0;
+            values.put(SpeakOut.QuestionItem.FAVOR, favor);
+        }
+        
+        // created date 
+        long now = Long.valueOf(System.currentTimeMillis());
+        if (values.containsKey(SpeakOut.QuestionItem.CREATED_DATE) == false) {
+            values.put(SpeakOut.QuestionItem.CREATED_DATE, now);
+        }
+        
+        // practise count
+        if (values.containsKey(SpeakOut.QuestionItem.PRACTISE_COUNT) == false) {
+            int practise_count = 0;
+            values.put(SpeakOut.QuestionItem.PRACTISE_COUNT, practise_count);
+        }
+        
+        // last practise date    
+         if (values.containsKey(SpeakOut.QuestionItem.LAST_PRACTISE_DATE) == false)
+         {
+         values.put(SpeakOut.QuestionItem.LAST_PRACTISE_DATE, now);
+         }
+        
+        // wrong count
+        if (values.containsKey(SpeakOut.QuestionItem.WRONG_COUNT) == false) {
+            int wrong_count = 0;
+            values.put(SpeakOut.QuestionItem.WRONG_COUNT, wrong_count);
+        }
+
+        // sound
+        if (values.containsKey(SpeakOut.QuestionItem.SOUND) == false) {
+            String sound = "unknow";
+            values.put(SpeakOut.QuestionItem.SOUND, sound);
+        }
+        
+        // insert data base
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         long rowId = db.insert(NOTES_TABLE_NAME, QuestionItem.CONTENT, values);
         if (rowId > 0) {

@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <provider
-            android:name="SpeakOutProvider"
+            android:name="com.kevinstudio.speakout.provider.SpeakOutProvider"
             android:authorities="com.kevinstudio.provider.SpeakOut" >
         </provider>
 
@@ -35,6 +35,12 @@
         <activity
             android:name="com.kevinstudio.speakout.VoiceRecognition"
             android:label="@string/voice_recognition" >
+        </activity>
+        
+        <!-- view question item activity -->
+        <activity
+            android:name="com.kevinstudio.speakout.ViewQuestionActivity"
+            android:label="@string/question_item_activity_name" >
         </activity>
     </application>
 

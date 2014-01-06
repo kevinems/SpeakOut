@@ -19,6 +19,8 @@ package com.kevinstudio.speakout;
 import com.kevinstudio.speakout.R.drawable;
 import com.kevinstudio.speakout.R.string;
 import com.kevinstudio.speakout.data.Question;
+import com.kevinstudio.speakout.provider.SpeakOut;
+
 
 import android.R.integer;
 import android.app.ActionBar.LayoutParams;
@@ -31,6 +33,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
@@ -83,6 +86,8 @@ public class VoiceRecognition extends Activity implements OnClickListener {
 
     private int mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
     
+    private Cursor cursor;
+    
     /**
      * Called with the activity is first created.
      */
@@ -93,6 +98,9 @@ public class VoiceRecognition extends Activity implements OnClickListener {
 
         // Inflate our UI from its XML layout description.
         setContentView(R.layout.voice_recognition);
+        
+        // get cursor
+        cursor = MainActivity.getGlobalCursor();
 
         // Get display items for later interaction
         Button speakButtonSequence = (Button) findViewById(R.id.btn_speak_sequence);
@@ -220,11 +228,11 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         if (mLastQuestionAnswer) {
             dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_correct));
             dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_correct_message));
-            imageView.setImageResource(drawable.wrong);
+            imageView.setImageResource(drawable.correct);
         } else {
             dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_wrong));
             dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_wrong_message));
-            imageView.setImageResource(drawable.correct);
+            imageView.setImageResource(drawable.wrong);
         }
         dialog.setView(layout);
         dialog.setPositiveButton(getString(R.string.voice_recognition_answer_dialog_next),
@@ -310,16 +318,16 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         Question question;
 
         if (next) {
-            if (MainActivity.mCursor.moveToNext()) {
+            if (this.cursor.moveToNext()) {
                 mCursorId++;
             } else {
-                MainActivity.mCursor.moveToFirst();
+                this.cursor.moveToFirst();
                 mCursorId = 0;
             }
             question = generateQuestionByCursor();
         } else {
             if (mCursorId == 0) {
-                MainActivity.mCursor.moveToFirst();
+                this.cursor.moveToFirst();
                 question = generateQuestionByCursor();
             } else {
                 question = mCurrentQuestion;
@@ -335,22 +343,22 @@ public class VoiceRecognition extends Activity implements OnClickListener {
      */
     private Question generateRandomQuestion(boolean next) {
         Question question;
-        int count = MainActivity.mCursor.getCount();
+        int count = this.cursor.getCount();
         int random = 0;
 
         Random randomSeed = new Random();
         do {
-            random = randomSeed.nextInt(MainActivity.mCursor.getCount());
+            random = randomSeed.nextInt(this.cursor.getCount());
         } while ((count > 1) && (random == mCursorId));
 
         if (next) {
-            MainActivity.mCursor.moveToPosition(random);
+            this.cursor.moveToPosition(random);
             question = generateQuestionByCursor();
         } else {
             if (mCurrentQuestion != null) {
                 question = mCurrentQuestion;
             } else {
-                MainActivity.mCursor.moveToPosition(random);
+                this.cursor.moveToPosition(random);
                 question = generateQuestionByCursor();
             }
 
@@ -363,8 +371,8 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     
     private Question generateQuestionByCursor() {
         Question question;
-        int nameColumnIndex = MainActivity.mCursor.getColumnIndex(SpeakOut.QuestionItem.CONTENT);
-        String content = MainActivity.mCursor.getString(nameColumnIndex);
+        int nameColumnIndex = this.cursor.getColumnIndex(SpeakOut.QuestionItem.CONTENT);
+        String content = this.cursor.getString(nameColumnIndex);
         question = new Question(content);
         
         return question;

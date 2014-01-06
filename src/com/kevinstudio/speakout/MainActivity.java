@@ -3,6 +3,9 @@ package com.kevinstudio.speakout;
 
 import com.kevinstudio.speakout.data.Question;
 import com.kevinstudio.speakout.data.QustionListAdapter;
+import com.kevinstudio.speakout.provider.SpeakOut;
+import com.kevinstudio.speakout.provider.SpeakOut.QuestionItem;
+
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -30,6 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -62,18 +66,23 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     // library list view frament
     private static ContentResolver mCR;
 
-    public static Cursor mCursor;
+    private static Cursor mCursor;
 
     private static QustionListAdapter mListAdapter;
     
     private static TextView mTextViewSumary;
     
     private static String[] columnsProject = new String[] {
-            SpeakOut.QuestionItem._ID, SpeakOut.QuestionItem.CONTENT, SpeakOut.QuestionItem.CREATEDDATE
+            QuestionItem._ID, QuestionItem.CONTENT, QuestionItem.COMMON_LEVEL, QuestionItem.FAVOR,
+            QuestionItem.CREATED_DATE, QuestionItem.PRACTISE_COUNT,
+            QuestionItem.LAST_PRACTISE_DATE, QuestionItem.WRONG_COUNT, QuestionItem.SOUND
     };
+    
     private static Uri myUri = SpeakOut.QuestionItem.CONTENT_URI;
     
-    private static final int CONTEXT_MENU_LIBRARY_LIST_DELETE_ID = 100000;
+    private static final int CONTEXT_MENU_LIBRARY_LIST_VIEW_ID = 100000;
+    private static final int CONTEXT_MENU_LIBRARY_LIST_DELETE_ID = CONTEXT_MENU_LIBRARY_LIST_VIEW_ID + 1;
+    
     
 
     @Override
@@ -336,6 +345,16 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             // register ContextMenu for listview
             registerForContextMenu(mListView);
             
+            mListView.setOnItemClickListener(new OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                    // TODO Auto-generated method stub
+                    Intent intent = new Intent(getActivity().getBaseContext(), ViewQuestionActivity.class);
+                    startActivity(intent);
+                }
+            });
+            
             return rootView;
         }
     }
@@ -372,6 +391,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         // TODO Auto-generated method stub
+        menu.add(menu.NONE, CONTEXT_MENU_LIBRARY_LIST_VIEW_ID, Menu.NONE,
+                getString(R.string.library_list_view_context_menu_view));
         menu.add(menu.NONE, CONTEXT_MENU_LIBRARY_LIST_DELETE_ID, Menu.NONE,
                 getString(R.string.library_list_view_context_menu_delete));
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -381,7 +402,23 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public boolean onContextItemSelected(MenuItem item) {
         // TODO Auto-generated method stub
         switch (item.getItemId()) {
-            case CONTEXT_MENU_LIBRARY_LIST_DELETE_ID:
+            
+            case CONTEXT_MENU_LIBRARY_LIST_VIEW_ID: {
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
+                        .getMenuInfo();
+
+//                String[] selectionArgs = new String[] {
+//                    String.valueOf(info.id)
+//                };
+                
+                Intent intent = new Intent(this, ViewQuestionActivity.class);
+                startActivity(intent);
+
+                return true;
+                // break;
+            }
+            
+            case CONTEXT_MENU_LIBRARY_LIST_DELETE_ID: {
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                         .getMenuInfo();
 
@@ -392,6 +429,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 mCR.delete(myUri, selection, selectionArgs);
 
                 return true;
+            }
                 // break;
 
             default:
@@ -407,5 +445,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         if (mCursor != null) {
             mCursor.close();
         }
+    }
+    
+    static public Cursor getGlobalCursor() {
+        return mCursor;
+    }
+    
+    static public void setGlobalCursor(Cursor aCursor) {
+        mCursor = aCursor;
     }
 }

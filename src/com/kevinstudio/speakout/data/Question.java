@@ -1,179 +1,162 @@
 
 package com.kevinstudio.speakout.data;
 
-import com.kevinstudio.speakout.R.string;
-
 import java.util.Date;
 
 public class Question {
     
-    public Question(String mContent) {
-        this.mType = QuestionType.WORD;
-        this.mContent = mContent;
-        this.mTranslate = "";
-        this.mCommonLevel = CommonLevel.THREE_STARS;
+    // field
+    private long id = 0;
+
+    private String content = "";
+
+    private int commonLevel = CommonLevel.THREE_STARS;
+    
+    private int wrongCount = 0;
+    
+    private int practiseCount = 0;
+    
+    private int sound = 0;
+    
+    private Date createdDate = new Date();
+
+    private Date lastPractiseDate = new Date();
+    
+    private boolean favor = false;
+    
+    public Question(String aContent) {
+        content = aContent;
     }
     
-    public Question(int mType, String mContent, String mTranslate, int mCommonLevel) {
-        super();
-        this.mType = mType;
-        this.mContent = mContent;
-        this.mTranslate = mTranslate;
-        this.mCommonLevel = mCommonLevel;
+    public Question(String aContent, int aCommonLevel) {
+        content = aContent;
+        commonLevel = aCommonLevel;
     }
 
     /**
      * @return the mId
      */
     public long getId() {
-        return mId;
+        return id;
     }
 
     /**
      * @param mId the mId to set
      */
-    public void setId(long mId) {
-        this.mId = mId;
-    }
-
-    /**
-     * @return the mType
-     */
-    public int getType() {
-        return mType;
-    }
-
-    /**
-     * @param mType the mType to set
-     */
-    public void setType(int mType) {
-        this.mType = mType;
+    public void setId(long aId) {
+        this.id = aId;
     }
 
     /**
      * @return the mContent
      */
     public String getContent() {
-        return mContent;
+        return content;
     }
 
     /**
      * @param mContent the mContent to set
      */
-    public void setContent(String mContent) {
-        this.mContent = mContent;
-    }
-
-    /**
-     * @return the mTranslate
-     */
-    public String getTranslate() {
-        return mTranslate;
-    }
-
-    /**
-     * @param mTranslate the mTranslate to set
-     */
-    public void setTranslate(String mTranslate) {
-        this.mTranslate = mTranslate;
+    public void setContent(String aContent) {
+        content = aContent;
     }
 
     /**
      * @return the mCommonLevel
      */
     public int getCommonLevel() {
-        return mCommonLevel;
+        return commonLevel;
     }
 
     /**
      * @param mCommonLevel the mCommonLevel to set
      */
-    public void setCommonLevel(int mCommonLevel) {
-        this.mCommonLevel = mCommonLevel;
+    public void setCommonLevel(int aCommonLevel) {
+        commonLevel = aCommonLevel;
     }
 
     /**
      * @return the mWrongCount
      */
     public int getWrongCount() {
-        return mWrongCount;
+        return wrongCount;
     }
 
     /**
      * @param mWrongCount the mWrongCount to set
      */
-    public void setWrongCount(int mWrongCount) {
-        this.mWrongCount = mWrongCount;
+    public void setWrongCount(int aWrongCount) {
+        wrongCount = aWrongCount;
     }
 
     /**
      * @return the mPractiseCount
      */
     public int getmPractiseCount() {
-        return mPractiseCount;
+        return practiseCount;
     }
 
     /**
      * @param mPractiseCount the mPractiseCount to set
      */
-    public void setPractiseCount(int mPractiseCount) {
-        this.mPractiseCount = mPractiseCount;
+    public void setPractiseCount(int aPractiseCount) {
+        practiseCount = aPractiseCount;
     }
 
     /**
      * @return the mSound
      */
     public int getSound() {
-        return mSound;
+        return sound;
     }
 
     /**
      * @param mSound the mSound to set
      */
-    public void setSound(int mSound) {
-        this.mSound = mSound;
+    public void setSound(int aSound) {
+        this.sound = aSound;
     }
 
     /**
      * @return the mAddDate
      */
-    public Date getAddDate() {
-        return mAddDate;
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
     /**
      * @param mAddDate the mAddDate to set
      */
-    public void setAddDate(Date mAddDate) {
-        this.mAddDate = mAddDate;
+    public void setCreatedDate(Date aAddDate) {
+        this.createdDate = aAddDate;
     }
 
     /**
      * @return the mLastPractiseDate
      */
     public Date getLastPractiseDate() {
-        return mLastPractiseDate;
+        return lastPractiseDate;
     }
 
     /**
      * @param mLastPractiseDate the mLastPractiseDate to set
      */
-    public void setLastPractiseDate(Date mLastPractiseDate) {
-        this.mLastPractiseDate = mLastPractiseDate;
+    public void setLastPractiseDate(Date aLastPractiseDate) {
+        this.lastPractiseDate = aLastPractiseDate;
     }
 
     /**
      * @return the mFavor
      */
     public boolean isFavor() {
-        return mFavor;
+        return favor;
     }
 
     /**
      * @param mFavor the mFavor to set
      */
-    public void setFavor(boolean mFavor) {
-        this.mFavor = mFavor;
+    public void setFavor(boolean aFavor) {
+        this.favor = aFavor;
     }
     
     public static boolean isContentValid(String aContent) {
@@ -190,45 +173,4 @@ public class Question {
         string.replaceAll("\\p{P}", "").trim();
         return string;
     }
-
-    // field
-    private long mId = 0;
-
-    private int mType = QuestionType.WORD;
-
-    private String mContent = "";
-
-    private String mTranslate = "";
-
-    private int mCommonLevel = CommonLevel.THREE_STARS;
-    
-    private int mWrongCount = 0;
-    
-    private int mPractiseCount = 0;
-    
-    private int mSound = 0;
-    
-    private Date mAddDate = new Date();
-
-    private Date mLastPractiseDate = new Date();
-    
-    private boolean mFavor = false;
-    
-    class QuestionType {
-        public final static int WORD = 0;
-
-        public final int SENTENCE = 1;
-    };
-
-    class CommonLevel {
-        public final static int ONE_STAR = 0;
-
-        public final static int TWO_STARS = 1;
-
-        public final static int THREE_STARS = 2;
-
-        public final static int FOUR_STARS = 3;
-
-        public final static int FIVE_STARS = 4;
-    };
 }

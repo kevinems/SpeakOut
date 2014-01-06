@@ -1,5 +1,5 @@
 
-package com.kevinstudio.speakout;
+package com.kevinstudio.speakout.provider;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -26,9 +26,21 @@ public class SpeakOut {
         public static final String DEFAULT_SORT_ORDER = "created DESC";
 
         // column
-
         public static final String CONTENT = "content";
 
-        public static final String CREATEDDATE = "created";
+        public static final String CREATED_DATE = "created";
+
+        public static final String COMMON_LEVEL = "commonLevel";
+
+        public static final String WRONG_COUNT = "wrongCount";
+
+        public static final String PRACTISE_COUNT = "practiseCount";
+
+        public static final String SOUND = "sound";
+
+        public static final String LAST_PRACTISE_DATE = "lastPractiseDate";
+
+        public static final String FAVOR = "Favor";
+
     }
 }

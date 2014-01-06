@@ -19,6 +19,7 @@
 
     <!-- library list view fragment -->
     <string name="library_list_view_sumary">Total items: </string>
+    <string name="library_list_view_context_menu_view">view</string>
     <string name="library_list_view_context_menu_delete">delete</string>
 
     <!-- voice recongnition -->
@@ -32,6 +33,17 @@
     <string name="voice_recognition_answer_dialog_rest">Have a rest!</string>
     <string name="voice_recognition_answer_dialog_once_again">once again?</string>
     <string name="voice_recognition_answer_dialog_next">next question!</string>
+    
+    <!-- view question item activity -->
+    <string name="question_item_activity_name">View item</string>
+    <string name="question_item_activity_id">id:</string>
+    <string name="question_item_activity_content">content:</string>
+    <string name="question_item_activity_common_level">Common level:</string>
+    <string name="question_item_activity_favor">favor:</string>
+    <string name="question_item_activity_created_date">created date:</string>
+    <string name="question_item_activity_practise_count">practise count:</string>
+    <string name="question_item_activity_last_practise_date">last practise date:</string>
+    <string name="question_item_activity_wrong_count">wrong count:</string>
 
     <!-- ============================== -->
     <!-- app/voice recognition examples strings -->

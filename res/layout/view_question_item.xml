@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:stretchColumns="1" >
+
+        <!-- id -->
+        <TableRow>
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_id" />
+            <TextView
+                android:id="@+id/question_item_activity_id"
+                android:padding="3dip"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- content -->
+        <TableRow>
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_content" />
+            <EditText
+                android:id="@+id/question_item_activity_content"
+                android:padding="3dip"
+                android:editable="false"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- common level -->
+        <TableRow>
+
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_common_level" />
+
+            <EditText
+                android:id="@+id/question_item_activity_common_level"
+                android:padding="3dip"
+                android:editable="false"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- favor -->
+        <TableRow>
+
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_favor" />
+
+            <EditText
+                android:id="@+id/question_item_activity_favor"
+                android:padding="3dip"
+                android:editable="false"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- created date -->
+        <TableRow>
+
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_created_date" />
+
+            <TextView
+                android:id="@+id/question_item_activity_created_date"
+                android:padding="3dip"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- practise count -->
+        <TableRow>
+
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_practise_count" />
+
+            <TextView
+                android:id="@+id/question_item_activity_practise_count"
+                android:padding="3dip"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- last practise date -->
+        <TableRow>
+
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_last_practise_date" />
+
+            <TextView
+                android:id="@+id/question_item_activity_last_practise_date"
+                android:padding="3dip"
+                android:scrollHorizontally="true" />
+        </TableRow>
+
+        <!-- wrong count -->
+        <TableRow>
+
+            <TextView
+                android:gravity="right"
+                android:padding="3dip"
+                android:text="@string/question_item_activity_wrong_count" />
+
+            <TextView
+                android:id="@+id/question_item_activity_wrong_count"
+                android:padding="3dip"
+                android:scrollHorizontally="true" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

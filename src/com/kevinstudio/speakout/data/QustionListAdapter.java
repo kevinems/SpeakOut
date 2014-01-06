@@ -2,7 +2,10 @@
 package com.kevinstudio.speakout.data;
 
 import com.kevinstudio.speakout.R;
-import com.kevinstudio.speakout.SpeakOut;
+import com.kevinstudio.speakout.R.string;
+import com.kevinstudio.speakout.provider.SpeakOut;
+import com.kevinstudio.speakout.provider.SpeakOut.QuestionItem;
+
 
 import android.content.Context;
 import android.database.Cursor;
@@ -25,15 +28,18 @@ public class QustionListAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         // TODO Auto-generated method stub
         ViewHolder holder = (ViewHolder) view.getTag();
-        
+
         // content
         String content = cursor.getString(cursor.getColumnIndex(SpeakOut.QuestionItem.CONTENT));
-        
-        // createddate
-        String createddate = cursor.getString(cursor.getColumnIndex(SpeakOut.QuestionItem.CREATEDDATE));
-        
         holder.item_tv_content.setText(content);
-        holder.item_tv_createdate.setText(createddate);
+
+        // createddate
+        long time = cursor.getLong(cursor.getColumnIndex(QuestionItem.CREATED_DATE));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("", Locale.SIMPLIFIED_CHINESE);
+        sdf.applyPattern("yyyy年MM月dd日 HH时mm分ss秒");
+
+        holder.item_tv_createdate.setText(sdf.format(new Date(time)));
     }
 
     @Override
