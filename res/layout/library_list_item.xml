@@ -6,12 +6,20 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity$DummySectionFragment" >
+    tools:context=".MainActivity$DummySectionFragment" 
+    >
 
     <TextView
-        android:id="@+id/library_list_item"
-        android:textColor="@android:color/black"
+        android:id="@+id/library_question_list_item_content"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/library_question_list_item_createddate"
+        android:layout_below="@id/library_question_list_item_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/darker_gray" />
 
 </RelativeLayout>

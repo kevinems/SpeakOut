@@ -2,6 +2,7 @@
 package com.kevinstudio.speakout;
 
 import com.kevinstudio.speakout.data.Question;
+import com.kevinstudio.speakout.data.QustionListAdapter;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -32,6 +33,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,14 +64,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     public static Cursor mCursor;
 
-    private static SimpleCursorAdapter mListAdapter;
+    private static QustionListAdapter mListAdapter;
     
     private static TextView mTextViewSumary;
     
     private static String[] columnsProject = new String[] {
-            SpeakOut.Notes._ID, SpeakOut.Notes.TITLE, SpeakOut.Notes.NOTE
+            SpeakOut.QuestionItem._ID, SpeakOut.QuestionItem.CONTENT, SpeakOut.QuestionItem.CREATEDDATE
     };
-    private static Uri myUri = SpeakOut.Notes.CONTENT_URI;
+    private static Uri myUri = SpeakOut.QuestionItem.CONTENT_URI;
     
     private static final int CONTEXT_MENU_LIBRARY_LIST_DELETE_ID = 100000;
     
@@ -269,8 +271,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                         // content provider
                         Log.i(TAG, "insert content provider");
                         ContentValues values = new ContentValues();
-                        values.put(SpeakOut.Notes.TITLE, "title1");
-                        values.put(SpeakOut.Notes.NOTE, contentToBeInserted);
+                        values.put(SpeakOut.QuestionItem.CONTENT, contentToBeInserted);
                         // Uri tempUri =
                         // ContentUris.withAppendedId(SpeakOut.Notes.CONTENT_URI,
                         // 1);
@@ -278,14 +279,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                         mCR.insert(myUri, values);
 
                         ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
-                        Toast.makeText(getActivity().getApplicationContext(),
+                        Toast.makeText(getActivity().getBaseContext(),
                                 R.string.main_view_quick_insert_content_done, Toast.LENGTH_SHORT)
                                 .show();
                         
                         // clear edittext content
                         editTextContent.setText("");
                     } else {
-                        Toast.makeText(getActivity().getApplicationContext(),
+                        Toast.makeText(getActivity().getBaseContext(),
                                 R.string.main_view_quick_insert_content_invalid, Toast.LENGTH_SHORT)
                                 .show();
                     }
@@ -299,7 +300,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 @Override
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
-                    Intent intent = new Intent(getActivity().getApplicationContext(), VoiceRecognition.class);
+                    Intent intent = new Intent(getActivity().getBaseContext(), VoiceRecognition.class);
                     startActivity(intent);
                 }
             });
@@ -316,24 +317,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             rootView = inflater.inflate(R.layout.fragment_library_list, container, false);
             
             // listview
-            mListView = (LibraryListView) rootView.findViewById(R.id.library_list_label);
-            mListView.setTag(LIBRARY_LIST_VIEW_TAG);
+            mListView = (LibraryListView) rootView.findViewById(R.id.library_list_questions);
             
             mCursor = mCR.query(myUri, columnsProject, null, null, null);
             if (mCursor != null) {
-                mListAdapter = new SimpleCursorAdapter(getActivity().getApplicationContext(),
-                // Use a template that displays a text view
-                        R.layout.library_list_item,
-                        // Give the cursor to the list adatper
-                        mCursor,
-                        // Map the NAME column in the people database to...
-                        new String[] {
-                            SpeakOut.Notes.NOTE
-                        },
-                        // The "text1" view defined in the XML template
-                        new int[] {
-                            R.id.library_list_item
-                        }, 0);
+                
+                mListAdapter = new QustionListAdapter(getActivity().getBaseContext(), mCursor, true);
                 mListView.setAdapter(mListAdapter);
             } else {
                 Log.i(TAG, "cur == null");
@@ -399,7 +388,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 String[] selectionArgs = new String[] {
                     String.valueOf(info.id)
                 };
-                String selection = "" + SpeakOut.Notes._ID + "=?";
+                String selection = "" + SpeakOut.QuestionItem._ID + "=?";
                 mCR.delete(myUri, selection, selectionArgs);
 
                 return true;

@@ -1,9 +1,7 @@
 package com.kevinstudio.speakout;
 
-import com.kevinstudio.speakout.R.string;
-import com.kevinstudio.speakout.SpeakOut.Notes;
+import com.kevinstudio.speakout.SpeakOut.QuestionItem;
 
-import android.R.integer;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,7 +16,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class SpeakOutProvider extends ContentProvider {
     private static final String TAG = "NotePadProvider";
@@ -28,34 +29,33 @@ public class SpeakOutProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 2;
     
     // table name
-    private static final String NOTES_TABLE_NAME = "items";
-    private static HashMap<String, String> sItemsProjectionMap;
-    private static final int NOTES = 1;
-    private static final int NOTE_ID = 2;
+    private static final String NOTES_TABLE_NAME = "question_items";
+    private static HashMap<String, String> sQuestionItemsProjectionMap;
+    private static final int QUESTION = 1;
+    private static final int QUESTION_ID = 2;
     private static final UriMatcher sUriMatcher;
     private DatabaseHelper mOpenHelper;
     
     // create table SQL 
     private static final String CREATE_TABLE = "CREATE TABLE "
                                                 + NOTES_TABLE_NAME
-                                                + " (" + Notes._ID
+                                                + " (" + QuestionItem._ID
                                                 + " INTEGER PRIMARY KEY,"
-                                                + Notes.TITLE
+                                                + QuestionItem.CONTENT
                                                 + " TEXT,"
-                                                + Notes.NOTE
-                                                + " BLOB" + ");";
+                                                + QuestionItem.CREATEDDATE
+                                                + " TEXT" 
+                                                + ");";
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(SpeakOut.AUTHORITY, "notes", NOTES);
-        sUriMatcher.addURI(SpeakOut.AUTHORITY, "notes/#", NOTE_ID);
+        sUriMatcher.addURI(SpeakOut.AUTHORITY, "question", QUESTION);
+        sUriMatcher.addURI(SpeakOut.AUTHORITY, "question/#", QUESTION_ID);
         
-        sItemsProjectionMap = new HashMap<String, String>();
-        sItemsProjectionMap.put(Notes._ID, Notes._ID);
-        sItemsProjectionMap.put(Notes.TITLE, Notes.TITLE);
-        sItemsProjectionMap.put(Notes.NOTE, Notes.NOTE);
-//        sNotesProjectionMap.put(Notes.CREATEDDATE, Notes.CREATEDDATE);
-//        sNotesProjectionMap.put(Notes.MODIFIEDDATE, Notes.MODIFIEDDATE);
+        sQuestionItemsProjectionMap = new HashMap<String, String>();
+        sQuestionItemsProjectionMap.put(QuestionItem._ID, QuestionItem._ID);
+        sQuestionItemsProjectionMap.put(QuestionItem.CONTENT, QuestionItem.CONTENT);
+        sQuestionItemsProjectionMap.put(QuestionItem.CREATEDDATE, QuestionItem.CREATEDDATE);
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -86,14 +86,14 @@ public class SpeakOutProvider extends ContentProvider {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int count;
         switch (sUriMatcher.match(uri)) {
-            case NOTES:
+            case QUESTION:
                 count = db.delete(NOTES_TABLE_NAME, selection, selectionArgs);
                 break;
                 
-            case NOTE_ID:
+            case QUESTION_ID:
                 String noteId = uri.getPathSegments().get(1);
                 count = db.delete(NOTES_TABLE_NAME,
-                        Notes._ID + "=" + noteId
+                        QuestionItem._ID + "=" + noteId
                                 + (!TextUtils.isEmpty(selection) ? "AND (" + selection + ')' : ""),
                         selectionArgs);
                 break;                    
@@ -110,10 +110,10 @@ public class SpeakOutProvider extends ContentProvider {
     public String getType(Uri uri) {
         // TODO Auto-generated method stub
         switch (sUriMatcher.match(uri)) {
-            case NOTES:
-                return Notes.CONTENT_TYPE;
-            case NOTE_ID:
-                return Notes.CONTENT_ITEM_TYPE;
+            case QUESTION:
+                return QuestionItem.CONTENT_TYPE;
+            case QUESTION_ID:
+                return QuestionItem.CONTENT_ITEM_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unkonw URI" + uri);
@@ -123,7 +123,7 @@ public class SpeakOutProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues initalValues) {
         // TODO Auto-generated method stub
-        if (sUriMatcher.match(uri) != NOTES) {
+        if (sUriMatcher.match(uri) != QUESTION) {
             throw new IllegalArgumentException("Unkonw URI" + uri);
         }
         
@@ -134,16 +134,18 @@ public class SpeakOutProvider extends ContentProvider {
             values = new ContentValues();
         }
         
-        if(values.containsKey(SpeakOut.Notes.TITLE) == false) {
-//            Resources r = Resources.getSystem();
-            values.put(SpeakOut.Notes.TITLE, "no title");
-        }
+        SimpleDateFormat sdf = new SimpleDateFormat("", Locale.SIMPLIFIED_CHINESE);
+        sdf.applyPattern("yyyy年MM月dd日 HH时mm分ss秒");
+        String now = sdf.format(new Date());  
+        if (values.containsKey(SpeakOut.QuestionItem.CREATEDDATE) == false) {
+            values.put(SpeakOut.QuestionItem.CREATEDDATE, now);
+        }      
         
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        long rowId = db.insert(NOTES_TABLE_NAME, Notes.NOTE, values);
+        long rowId = db.insert(NOTES_TABLE_NAME, QuestionItem.CONTENT, values);
         if (rowId > 0) {
             Log.i(TAG, "rowId = " + rowId);
-            Uri noteUri = ContentUris.withAppendedId(SpeakOut.Notes.CONTENT_URI, rowId);
+            Uri noteUri = ContentUris.withAppendedId(SpeakOut.QuestionItem.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(noteUri, null);
             return noteUri;
         }
@@ -170,15 +172,15 @@ public class SpeakOutProvider extends ContentProvider {
         // TODO Auto-generated method stub
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         switch (sUriMatcher.match(uri)) {
-            case NOTES:
+            case QUESTION:
                 qb.setTables(NOTES_TABLE_NAME);
-                qb.setProjectionMap(sItemsProjectionMap);
+                qb.setProjectionMap(sQuestionItemsProjectionMap);
                 break;
                 
-            case NOTE_ID:
+            case QUESTION_ID:
                 qb.setTables(NOTES_TABLE_NAME);
-                qb.setProjectionMap(sItemsProjectionMap);
-                qb.appendWhere(Notes._ID + "=" + uri.getPathSegments().get(1));
+                qb.setProjectionMap(sQuestionItemsProjectionMap);
+                qb.appendWhere(QuestionItem._ID + "=" + uri.getPathSegments().get(1));
                 break;
             default:
                 throw new IllegalArgumentException("Unkonw URI" + uri);
@@ -190,7 +192,7 @@ public class SpeakOutProvider extends ContentProvider {
         // db operate
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null,
-                SpeakOut.Notes.DEFAULT_SORT_ORDER);
+                SpeakOut.QuestionItem.DEFAULT_SORT_ORDER);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -201,13 +203,13 @@ public class SpeakOutProvider extends ContentProvider {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int count;
         switch (sUriMatcher.match(uri)) {
-            case NOTES:
+            case QUESTION:
                 count = db.update(NOTES_TABLE_NAME, values, selection, selectionArgs);
                 break;
-            case NOTE_ID:
+            case QUESTION_ID:
                 String noteId = uri.getPathSegments().get(1);
                 count = db.update(NOTES_TABLE_NAME, values,
-                        Notes._ID + "=" + noteId
+                        QuestionItem._ID + "=" + noteId
                                 + (!TextUtils.isEmpty(selection) ? "AND (" + selection + ')' : ""),
                         selectionArgs);
                 break;

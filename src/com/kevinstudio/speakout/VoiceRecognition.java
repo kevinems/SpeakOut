@@ -363,7 +363,7 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     
     private Question generateQuestionByCursor() {
         Question question;
-        int nameColumnIndex = MainActivity.mCursor.getColumnIndex(SpeakOut.Notes.NOTE);
+        int nameColumnIndex = MainActivity.mCursor.getColumnIndex(SpeakOut.QuestionItem.CONTENT);
         String content = MainActivity.mCursor.getString(nameColumnIndex);
         question = new Question(content);
         

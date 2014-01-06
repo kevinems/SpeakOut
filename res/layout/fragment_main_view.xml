@@ -39,7 +39,7 @@
             android:layout_below="@id/main_view_quick_insert_tips"
             android:hint="@string/main_view_quick_insert_edittext_content_tips"
             android:inputType="textMultiLine"
-            android:maxLines="3" />
+            android:maxLines="5" />
 
         <LinearLayout
             android:id="@+id/clear_insert_button_layout"

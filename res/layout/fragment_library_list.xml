@@ -15,7 +15,7 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"/>
     <com.kevinstudio.speakout.LibraryListView
-        android:id="@+id/library_list_label"
+        android:id="@+id/library_list_questions"
         android:layout_below="@id/library_sumary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
