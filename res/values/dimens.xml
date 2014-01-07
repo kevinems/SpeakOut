@@ -5,5 +5,9 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     
     <!-- fragment main view -->
-	<dimen name="main_view_common_button_width">150dp</dimen>
+	<dimen name="main_view_common_button_width">100dp</dimen>
+	
+	<!-- fragment library view -->
+	<dimen name="library_list_vertical_margin">10dp</dimen>
+	<dimen name="library_list_horizontal_margin">10dp</dimen>
 </resources>

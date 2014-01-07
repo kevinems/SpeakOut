@@ -37,6 +37,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -303,7 +304,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
             });
             
-            Button buttonPractise = (Button) rootView.findViewById(R.id.main_view_quick_practise_button);
+            ImageButton buttonPractise = (ImageButton) rootView.findViewById(R.id.main_view_quick_practise_button);
             buttonPractise.setOnClickListener(new OnClickListener() {
                 
                 @Override
