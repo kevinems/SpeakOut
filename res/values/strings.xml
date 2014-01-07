@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SpeakOut</string>
+    <string name="app_name">Speak Out</string>
     <string name="action_settings">Settings</string>
     <string name="title_section1">Main</string>
     <string name="title_section2">Library</string>
@@ -50,8 +50,8 @@
     <!-- ============================== -->
 
     <string name="voice_recognition_prompt">This activity demonstrates the voice recognition APIs.</string>
-    <string name="speak_button_sequence">Sequence Speak!</string>
-    <string name="speak_button_random">Random Speak!</string>
+    <string name="speak_button_sequence">Sequence Speak! Click to start!</string>
+    <string name="speak_button_random">Random Speak! Click to start</string>
     <string name="voice_recognition_results">Results:</string>
 
 </resources>

@@ -11,7 +11,7 @@
     <RelativeLayout
         android:id="@+id/main_view_tips_layout"
         android:layout_width="fill_parent"
-        android:layout_height="50.0dip"
+        android:layout_height="wrap_content"
         android:layout_margin="10.0dip" >
 
         <TextView
@@ -50,14 +50,12 @@
 
             <Button
                 android:id="@+id/main_view_quick_insert_button_clear"
-                style="?android:attr/button"
                 android:layout_width="@dimen/main_view_common_button_width"
                 android:layout_height="wrap_content"
                 android:hint="@string/main_view_quick_insert_button_clear" />
 
             <Button
                 android:id="@+id/main_view_quick_insert_button_insert"
-                style="?android:attr/button"
                 android:layout_width="@dimen/main_view_common_button_width"
                 android:layout_height="wrap_content"
                 android:hint="@string/main_view_quick_insert_button_insert" />

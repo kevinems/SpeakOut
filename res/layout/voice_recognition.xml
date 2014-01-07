@@ -27,16 +27,11 @@
         android:layout_height="wrap_content"
         android:paddingBottom="4dip"
         android:text="@string/voice_recognition_prompt" />
-
-    <Button android:id="@+id/btn_speak_sequence"
-        android:layout_width="@dimen/main_view_common_button_width"
-        android:layout_height="wrap_content"
-        android:text="@string/speak_button_sequence" />
     
-    <Button android:id="@+id/btn_speak_random"
-        android:layout_width="@dimen/main_view_common_button_width"
+    <ListView android:id="@+id/list_view_speak_mode"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/speak_button_random" />
+        />
 
     <TextView
         android:layout_width="fill_parent"

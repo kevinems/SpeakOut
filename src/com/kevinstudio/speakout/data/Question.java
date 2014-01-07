@@ -169,8 +169,7 @@ public class Question {
     }
     
     public static String getValidContent(String aString) {
-        String string  = aString;
-        string.replaceAll("\\p{P}", "").trim();
+        String string  = new String(aString).replaceAll("\\p{P}", "").trim();
         return string;
     }
 }

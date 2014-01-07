@@ -3,9 +3,11 @@ package com.kevinstudio.speakout;
 
 import com.kevinstudio.speakout.provider.SpeakOut;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -90,9 +92,28 @@ public class ViewQuestionActivity extends Activity {
         tv_wrongCount = (TextView) findViewById(R.id.question_item_activity_wrong_count);
         int wrongCount = cursor.getInt(cursor.getColumnIndex(SpeakOut.QuestionItem.WRONG_COUNT));
         tv_wrongCount.setText(String.valueOf(wrongCount));
+        
+        // action bar
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     private void initVariable() {
         cursor = MainActivity.getGlobalCursor();
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                break;
+
+            default:
+                break;
+        }
+        
+        return super.onOptionsItemSelected(item);
     }
 }

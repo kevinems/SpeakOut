@@ -18,12 +18,14 @@ package com.kevinstudio.speakout;
 
 import com.kevinstudio.speakout.R.drawable;
 import com.kevinstudio.speakout.R.string;
+import com.kevinstudio.speakout.data.ImageTextAdapter;
 import com.kevinstudio.speakout.data.Question;
 import com.kevinstudio.speakout.provider.SpeakOut;
 
 
 import android.R.integer;
 import android.app.ActionBar.LayoutParams;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -39,8 +41,11 @@ import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -52,7 +57,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -88,6 +95,8 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     
     private Cursor cursor;
     
+    private String[] speakModeStrings;
+    
     /**
      * Called with the activity is first created.
      */
@@ -98,14 +107,19 @@ public class VoiceRecognition extends Activity implements OnClickListener {
 
         // Inflate our UI from its XML layout description.
         setContentView(R.layout.voice_recognition);
+
+        initVariable();
         
-        // get cursor
-        cursor = MainActivity.getGlobalCursor();
-
+        initLayout();
+        
         // Get display items for later interaction
-        Button speakButtonSequence = (Button) findViewById(R.id.btn_speak_sequence);
-        Button speakButtonRandom = (Button) findViewById(R.id.btn_speak_random);
-
+        ListView listSpeakMode = (ListView) findViewById(R.id.list_view_speak_mode);
+        final ImageTextAdapter adapter = new ImageTextAdapter(this, speakModeStrings);
+        listSpeakMode.setAdapter(adapter);
+        
+     // Tell the list view to show one checked/activated item at a time.
+        adapter.setSelectItem(0);
+        
         mList = (ListView) findViewById(R.id.list);
 
         mSupportedLanguageView = (Spinner) findViewById(R.id.supported_languages);
@@ -115,12 +129,28 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         List<ResolveInfo> activities = pm.queryIntentActivities(
                 new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         if (activities.size() != 0) {
-            speakButtonSequence.setOnClickListener(this);
-            speakButtonRandom.setOnClickListener(this);
+            listSpeakMode.setOnItemClickListener(new OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> arg0, View arg1, int position,long arg3) {
+                    // TODO Auto-generated method stub
+                    if (position == 0) {
+                        // sequence speak mode
+                        mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
+                        mCurrentQuestion = generateQuestion(mLastQuestionAnswer);
+                        startVoiceRecognitionActivity();
+                    } else if (position == 1) {
+                        // random speak mode
+                        mQuestionGenerateRule = QUESTION_GENERATE_RULE_RANDOM;
+                        mCurrentQuestion = generateQuestion(true);
+                        startVoiceRecognitionActivity();
+                    }
+                    adapter.setSelectItem(position);
+                    adapter.notifyDataSetInvalidated();
+                }
+            });
         } else {
-            speakButtonSequence.setEnabled(false);
-            speakButtonRandom.setEnabled(false);
-            speakButtonSequence.setText("Recognizer not present");
+            listSpeakMode.setEnabled(false);
         }
 
         // Most of the applications do not have to handle the voice settings. If the application
@@ -128,20 +158,41 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         // locale), the application does not need to read the voice settings.
         refreshVoiceSettings();
     }
+    
+    private void initVariable() {
+     // get cursor
+        cursor = MainActivity.getGlobalCursor();
+        
+        // btn listview speak mode       
+        speakModeStrings = new String[] {
+                getString(R.string.speak_button_sequence), getString(R.string.speak_button_random)
+        };
+    }
+    
+    private void initLayout() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                break;
+
+            default:
+                break;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Handle the click on the start recognition button.
      */
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_speak_sequence) {
-            mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
-            mCurrentQuestion = generateQuestion(mLastQuestionAnswer);
-            startVoiceRecognitionActivity();
-        } else if (v.getId() == R.id.btn_speak_random) {
-            mQuestionGenerateRule = QUESTION_GENERATE_RULE_RANDOM;
-            mCurrentQuestion = generateQuestion(true);
-            startVoiceRecognitionActivity();
-        }
     }
 
     /**
@@ -203,8 +254,6 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         }
 
         super.onActivityResult(requestCode, resultCode, data);
-        
-        
     }
 
     /**
