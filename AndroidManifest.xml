@@ -14,7 +14,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@android:style/Theme.Holo.Light"
+         >
         <provider
             android:name="com.kevinstudio.speakout.provider.SpeakOutProvider"
             android:authorities="com.kevinstudio.provider.SpeakOut" >
@@ -34,7 +35,8 @@
         <!-- Voice Recognition Samples -->
         <activity
             android:name="com.kevinstudio.speakout.VoiceRecognition"
-            android:label="@string/voice_recognition" >
+            android:label="@string/voice_recognition" 
+            >
         </activity>
         
         <!-- view question item activity -->

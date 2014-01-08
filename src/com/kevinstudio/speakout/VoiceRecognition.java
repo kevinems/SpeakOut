@@ -17,20 +17,16 @@
 package com.kevinstudio.speakout;
 
 import com.kevinstudio.speakout.R.drawable;
-import com.kevinstudio.speakout.R.string;
 import com.kevinstudio.speakout.data.ImageTextAdapter;
 import com.kevinstudio.speakout.data.Question;
 import com.kevinstudio.speakout.provider.SpeakOut;
 
-
-import android.R.integer;
-import android.app.ActionBar.LayoutParams;
 import android.app.ActionBar;
+import android.app.ActionBar.LayoutParams;
+import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -54,12 +50,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -73,30 +66,40 @@ public class VoiceRecognition extends Activity implements OnClickListener {
 
     private ListView mList;
 
+    private Button mBtnNext;
+
+    private Button mBtnOnceAgain;
+    
+    private TextView mTvQuestion;
+    
+    private TextView mTvAnswer;
+
     private Handler mHandler;
 
     private Spinner mSupportedLanguageView;
-    
+
     private int mCursorId = 0;
-    
+
     private Question mCurrentQuestion;
-    
+
     static final String DEFAULT_LANGUAGE = "en-US";
-    
+
     private String mCurrentLanguge = DEFAULT_LANGUAGE;
-    
+
     private boolean mLastQuestionAnswer = false;
 
     private static final int QUESTION_GENERATE_RULE_SEQUENCE = 0;
+
     private static final int QUESTION_GENERATE_RULE_RANDOM = 1;
+
     private static final int QUESTION_GENERATE_RULE_WRONG = 2;
 
     private int mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
-    
+
     private Cursor cursor;
-    
+
     private String[] speakModeStrings;
-    
+
     /**
      * Called with the activity is first created.
      */
@@ -109,71 +112,75 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         setContentView(R.layout.voice_recognition);
 
         initVariable();
-        
-        initLayout();
-        
-        // Get display items for later interaction
-        ListView listSpeakMode = (ListView) findViewById(R.id.list_view_speak_mode);
-        final ImageTextAdapter adapter = new ImageTextAdapter(this, speakModeStrings);
-        listSpeakMode.setAdapter(adapter);
-        
-     // Tell the list view to show one checked/activated item at a time.
-        adapter.setSelectItem(0);
-        
-        mList = (ListView) findViewById(R.id.list);
 
-        mSupportedLanguageView = (Spinner) findViewById(R.id.supported_languages);
+        initLayout();
+
+        // Get display items for later interaction
+
+        // Tell the list view to show one checked/activated item at a time.
+
+        mList = (ListView) findViewById(R.id.voice_recognition_result_list);
+
+        // TextView textView = new TextView(this);
+        // textView.setText("headerview test");
+        // mList.addHeaderView(textView);
+
+        // mSupportedLanguageView = (Spinner)
+        // findViewById(R.id.supported_languages);
 
         // Check to see if a recognition activity is present
         PackageManager pm = getPackageManager();
-        List<ResolveInfo> activities = pm.queryIntentActivities(
-                new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+        List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(
+                RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         if (activities.size() != 0) {
-            listSpeakMode.setOnItemClickListener(new OnItemClickListener() {
-
-                @Override
-                public void onItemClick(AdapterView<?> arg0, View arg1, int position,long arg3) {
-                    // TODO Auto-generated method stub
-                    if (position == 0) {
-                        // sequence speak mode
-                        mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
-                        mCurrentQuestion = generateQuestion(mLastQuestionAnswer);
-                        startVoiceRecognitionActivity();
-                    } else if (position == 1) {
-                        // random speak mode
-                        mQuestionGenerateRule = QUESTION_GENERATE_RULE_RANDOM;
-                        mCurrentQuestion = generateQuestion(true);
-                        startVoiceRecognitionActivity();
-                    }
-                    adapter.setSelectItem(position);
-                    adapter.notifyDataSetInvalidated();
-                }
-            });
+            mBtnOnceAgain.setEnabled(true);
+            mBtnNext.setEnabled(true);
         } else {
-            listSpeakMode.setEnabled(false);
+            mBtnOnceAgain.setEnabled(false);
+            mBtnNext.setEnabled(false);
         }
 
-        // Most of the applications do not have to handle the voice settings. If the application
-        // does not require a recognition in a specific language (i.e., different from the system
+        // Most of the applications do not have to handle the voice settings. If
+        // the application
+        // does not require a recognition in a specific language (i.e.,
+        // different from the system
         // locale), the application does not need to read the voice settings.
-        refreshVoiceSettings();
+        // refreshVoiceSettings(); // does not need current
     }
-    
+
     private void initVariable() {
-     // get cursor
+        // get cursor
         cursor = MainActivity.getGlobalCursor();
-        
-        // btn listview speak mode       
+
+        // btn listview speak mode
         speakModeStrings = new String[] {
                 getString(R.string.speak_button_sequence), getString(R.string.speak_button_random)
         };
     }
-    
+
     private void initLayout() {
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+ 
+        // action bar list
+        // 设置actionbar的导航模式
+        actionBar.setNavigationMode(actionBar.NAVIGATION_MODE_LIST);
+        // 生成一个spinneradaper，设置actionbar下拉菜单的菜单项
+        SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.action_bar_speak_list, android.R.layout.simple_spinner_dropdown_item);
+        // 为actionbar设置适配器跟监听器
+        actionBar.setListNavigationCallbacks(spinnerAdapter, new DropDownListener());
+        
+        mTvQuestion = (TextView) findViewById(R.id.voice_recognition_result_question);
+        mTvAnswer = (TextView) findViewById(R.id.voice_recognition_result_answer);
+
+        mBtnOnceAgain = (Button) findViewById(R.id.btn_once_again);
+        mBtnNext = (Button) findViewById(R.id.btn_next);
+
+        mBtnOnceAgain.setOnClickListener(this);
+        mBtnNext.setOnClickListener(this);
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // TODO Auto-generated method stub
@@ -185,7 +192,7 @@ public class VoiceRecognition extends Activity implements OnClickListener {
             default:
                 break;
         }
-        
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -193,6 +200,18 @@ public class VoiceRecognition extends Activity implements OnClickListener {
      * Handle the click on the start recognition button.
      */
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_once_again:
+                mCurrentQuestion = generateQuestion(false);
+                startVoiceRecognitionActivity();
+                break;
+            case R.id.btn_next:
+                mCurrentQuestion = generateQuestion(true);
+                startVoiceRecognitionActivity();
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -205,24 +224,32 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass().getPackage().getName());
 
         // Display an hint to the user about what he should say.
-//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition demo");
+        // intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+        // "Speech recognition demo");
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, mCurrentQuestion.getContent());
 
         // Given an hint to the recognizer about what the user is going to say
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
 
-        // Specify how many results you want to receive. The results will be sorted
+        // Specify how many results you want to receive. The results will be
+        // sorted
         // where the first result is the one with higher confidence.
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
 
-        // Specify the recognition language. This parameter has to be specified only if the
-        // recognition has to be done in a specific language and not the default one (i.e., the
-        // system locale). Most of the applications do not have to set this parameter.
-        if (!mSupportedLanguageView.getSelectedItem().toString().equals("Default")) {
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
-                    mSupportedLanguageView.getSelectedItem().toString());
-        }
+        // Specify the recognition language. This parameter has to be specified
+        // only if the
+        // recognition has to be done in a specific language and not the default
+        // one (i.e., the
+        // system locale). Most of the applications do not have to set this
+        // parameter.
+        // if
+        // (!mSupportedLanguageView.getSelectedItem().toString().equals(DEFAULT_LANGUAGE))
+        // {
+        // intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
+        // mSupportedLanguageView.getSelectedItem().toString());
+        // }
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, DEFAULT_LANGUAGE);
 
         startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
     }
@@ -233,119 +260,75 @@ public class VoiceRecognition extends Activity implements OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
-            // Fill the list view with the strings the recognizer thought it could have heard
-            ArrayList<String> matches = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1,
-                    matches);
+            // Fill the list view with the strings the recognizer thought it
+            // could have heard
+            ArrayList<String> matches = data
+                    .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_activated_1, matches);
             mList.setAdapter(arrayAdapter);
             mList.setTextFilterEnabled(true);
             mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            
+
             int answerId = judgeAnswer(matches);
             if (answerId >= 0) {
-//                Toast.makeText(this, "good", Toast.LENGTH_SHORT).show();
                 mList.setItemChecked(answerId, true);
-                showAnswerDialog(matches.get(answerId));
+                updateResultView(matches.get(answerId));
             } else {
-//                Toast.makeText(this, "not good", Toast.LENGTH_SHORT).show();
-                showAnswerDialog(matches.get(0));
+                updateResultView(matches.get(0));
             }
         }
 
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    /**
-     * 
-     */
-    private void showAnswerDialog(String answer) {
+    private void updateResultView(String answer) {
+        ImageView imageView = (ImageView) findViewById(R.id.voice_recognition_result_imageview);
+        TextView textView = (TextView) findViewById(R.id.voice_recognition_result_textview);
 
-        AlertDialog.Builder dialog = new Builder(this);
-//        LayoutInflater inflater = getLayoutInflater();
-//        View layout = inflater.inflate(R.layout.answer_dialog, (ViewGroup) findViewById(R.id.answer_dialog));
-//        dialog.setIconAttribute(android.R.attr.alertDialogIcon);
-        LinearLayout layout = new LinearLayout(this);
-        ImageView imageView = new ImageView(this);
-        TextView textView = new TextView(this);
-        textView.setText(answer);
-        textView.setGravity(Gravity.CENTER);
-        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER);
-        layout.addView(imageView, params);
-        params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
-        layout.addView(textView, params);
         if (mLastQuestionAnswer) {
-            dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_correct));
-            dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_correct_message));
             imageView.setImageResource(drawable.correct);
+            textView.setText(R.string.voice_recognition_answer_dialog_correct_message);
         } else {
-            dialog.setTitle(getString(R.string.voice_recognition_answer_dialog_wrong));
-            dialog.setMessage(getString(R.string.voice_recognition_answer_dialog_wrong_message));
             imageView.setImageResource(drawable.wrong);
+            textView.setText(R.string.voice_recognition_answer_dialog_wrong_message);
         }
-        dialog.setView(layout);
-        dialog.setPositiveButton(getString(R.string.voice_recognition_answer_dialog_next),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
-                        mCurrentQuestion = generateQuestion(true);
-                        startVoiceRecognitionActivity();
-                    }
-                });
-        dialog.setNegativeButton(getString(R.string.voice_recognition_answer_dialog_rest),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
-                    }
-                });
-        dialog.setNeutralButton(getString(R.string.voice_recognition_answer_dialog_once_again),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
-                        mCurrentQuestion = generateQuestion(false);
-                        startVoiceRecognitionActivity();
-                    }
-                });
-        dialog.create();
-        dialog.show();
-    }
-    
-
-    private void refreshVoiceSettings() {
-        Log.i(TAG, "Sending broadcast");
-        sendOrderedBroadcast(RecognizerIntent.getVoiceDetailsIntent(this), null,
-                new SupportedLanguageBroadcastReceiver(), null, Activity.RESULT_OK, null, null);
+        mTvQuestion.setText(mCurrentQuestion.getContent());
+        mTvAnswer.setText(answer);
+        mBtnNext.setText(R.string.voice_recognition_answer_dialog_next);
     }
 
-    private void updateSupportedLanguages(List<String> languages) {
-        // We add "Default" at the beginning of the list to simulate default language.
-        languages.add(0, "Default");
+    /*
+     * private void refreshVoiceSettings() { Log.i(TAG, "Sending broadcast");
+     * sendOrderedBroadcast(RecognizerIntent.getVoiceDetailsIntent(this), null,
+     * new SupportedLanguageBroadcastReceiver(), null, Activity.RESULT_OK, null,
+     * null); }
+     */
 
-        SpinnerAdapter adapter = new ArrayAdapter<CharSequence>(this,
-                android.R.layout.simple_spinner_item, languages.toArray(
-                        new String[languages.size()]));
-        mSupportedLanguageView.setAdapter(adapter);
-        mSupportedLanguageView.setSelection(14); // 14 means en-US
-    }
+    /*
+     * private void updateSupportedLanguages(List<String> languages) { // We add
+     * "Default" at the beginning of the list to simulate default language.
+     * languages.add(0, "Default"); SpinnerAdapter adapter = new
+     * ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item,
+     * languages.toArray( new String[languages.size()]));
+     * mSupportedLanguageView.setAdapter(adapter);
+     * mSupportedLanguageView.setSelection(14); // 14 means en-US }
+     */
 
-    private void updateLanguagePreference(String language) {
-        TextView textView = (TextView) findViewById(R.id.language_preference);
-        textView.setText(language);
-    }
-    
+    /*
+     * private void updateLanguagePreference(String language) { TextView
+     * textView = (TextView) findViewById(R.id.language_preference);
+     * textView.setText(language); }
+     */
+
     private Question generateQuestion(boolean next) {
         Question question;
-        
+
         switch (mQuestionGenerateRule) {
             case QUESTION_GENERATE_RULE_SEQUENCE:
                 question = generateSequenceQuestion(next);
                 break;
-                
+
             case QUESTION_GENERATE_RULE_RANDOM:
                 question = generateRandomQuestion(next);
                 break;
@@ -354,13 +337,13 @@ public class VoiceRecognition extends Activity implements OnClickListener {
                 question = generateSequenceQuestion(next);
                 break;
         }
-        
+
         return question;
     }
-    
+
     /**
-     * 
-     * @param next true to get next question, or false to return current question;
+     * @param next true to get next question, or false to return current
+     *            question;
      * @return
      */
     private Question generateSequenceQuestion(boolean next) {
@@ -384,10 +367,10 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         }
         return question;
     }
-    
+
     /**
-     * 
-     * @param next true to get next question, or false to return current question;
+     * @param next true to get next question, or false to return current
+     *            question;
      * @return
      */
     private Question generateRandomQuestion(boolean next) {
@@ -417,25 +400,24 @@ public class VoiceRecognition extends Activity implements OnClickListener {
 
         return question;
     }
-    
+
     private Question generateQuestionByCursor() {
         Question question;
         int nameColumnIndex = this.cursor.getColumnIndex(SpeakOut.QuestionItem.CONTENT);
         String content = this.cursor.getString(nameColumnIndex);
         question = new Question(content);
-        
+
         return question;
     }
-    
+
     /**
-     * 
      * @param matches
      * @return -1 means error, >= 0 means equal No.
      */
     private int judgeAnswer(ArrayList<String> matches) {
         String content = Question.getValidContent(mCurrentQuestion.getContent());
         Log.i(TAG, "judgeAnswer content = " + content);
-        for (int i = 0; i< matches.size(); i++) {
+        for (int i = 0; i < matches.size(); i++) {
             if (matches.get(i).equalsIgnoreCase(content)) {
                 mLastQuestionAnswer = true;
                 return i;
@@ -444,64 +426,54 @@ public class VoiceRecognition extends Activity implements OnClickListener {
         mLastQuestionAnswer = false;
         return -1;
     }
+    
+    private class DropDownListener implements OnNavigationListener  
+    {  
+      
+        @Override  
+        public boolean onNavigationItemSelected(int itemPosition, long itemId)  
+        {  
+            // TODO Auto-generated method stub  
+            switch (itemPosition) {
+                case 0:
+                    mQuestionGenerateRule = QUESTION_GENERATE_RULE_SEQUENCE;
+                    break;
+                case 1:
+                    mQuestionGenerateRule = QUESTION_GENERATE_RULE_RANDOM;
+                default:
+                    break;
+            }
+            
+            return false;
+        }  
+              
+    }
 
     /**
-     * Handles the response of the broadcast request about the recognizer supported languages.
-     *
-     * The receiver is required only if the application wants to do recognition in a specific
-     * language.
+     * Handles the response of the broadcast request about the recognizer
+     * supported languages. The receiver is required only if the application
+     * wants to do recognition in a specific language.
      */
-    private class SupportedLanguageBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, final Intent intent) {
-            Log.i(TAG, "Receiving broadcast " + intent);
-
-            final Bundle extra = getResultExtras(false);
-
-            if (getResultCode() != Activity.RESULT_OK) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast("Error code:" + getResultCode());
-                    }
-                });
-            }
-
-            if (extra == null) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast("No extra");
-                    }
-                });
-            }
-
-            if (extra.containsKey(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES)) {
-                mHandler.post(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        updateSupportedLanguages(extra.getStringArrayList(
-                                RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES));
-                    }
-                });
-            }
-
-            if (extra.containsKey(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE)) {
-                mHandler.post(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        updateLanguagePreference(
-                                extra.getString(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE));
-                    }
-                });
-            }
-        }
-
-        private void showToast(String text) {
-            Toast.makeText(VoiceRecognition.this, text, 1000).show();
-        }
-    }
+    /*
+     * private class SupportedLanguageBroadcastReceiver extends
+     * BroadcastReceiver {
+     * @Override public void onReceive(Context context, final Intent intent) {
+     * Log.i(TAG, "Receiving broadcast " + intent); final Bundle extra =
+     * getResultExtras(false); if (getResultCode() != Activity.RESULT_OK) {
+     * mHandler.post(new Runnable() {
+     * @Override public void run() { showToast("Error code:" + getResultCode());
+     * } }); } if (extra == null) { mHandler.post(new Runnable() {
+     * @Override public void run() { showToast("No extra"); } }); } if
+     * (extra.containsKey(RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES)) {
+     * mHandler.post(new Runnable() {
+     * @Override public void run() {
+     * updateSupportedLanguages(extra.getStringArrayList(
+     * RecognizerIntent.EXTRA_SUPPORTED_LANGUAGES)); } }); } if
+     * (extra.containsKey(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE)) {
+     * mHandler.post(new Runnable() {
+     * @Override public void run() { updateLanguagePreference(
+     * extra.getString(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE)); } }); } }
+     * private void showToast(String text) {
+     * Toast.makeText(VoiceRecognition.this, text, 1000).show(); } }
+     */
 }

@@ -7,6 +7,12 @@
     <string name="title_section2">Library</string>
     <string name="title_section3">Section 3</string>
 
+    <!-- action bar -->
+    <string-array name="action_bar_speak_list">
+        <item>Sequence Speak</item>
+        <item>Random Speak</item>
+    </string-array>
+
     <!-- main view fragment -->
     <string name="mainv_view_tips">Good Good Study, Day Day Up!</string>
     <string name="main_view_quick_insert">insert a new item quickly</string>
@@ -33,7 +39,11 @@
     <string name="voice_recognition_answer_dialog_rest">Have a rest!</string>
     <string name="voice_recognition_answer_dialog_once_again">once again?</string>
     <string name="voice_recognition_answer_dialog_next">next question!</string>
-    
+    <string name="voice_recognition_answer_dialog_let_go">Let\'s go!</string>
+    <string name="voice_recognition_result_list_tips">Voice recognition result: </string>
+    <string name="voice_recognition_question_tips">Question: </string>
+    <string name="voice_recognition_answer_tips">Answer: </string>
+
     <!-- view question item activity -->
     <string name="question_item_activity_name">View item</string>
     <string name="question_item_activity_id">id:</string>
